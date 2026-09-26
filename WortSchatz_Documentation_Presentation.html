@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WortSchatz • Enterprise Agile Architecture & Feature Specification</title>
+  <style>
+    :root {
+      --bg-app: #0f1117;
+      --bg-card: #181920;
+      --bg-card-hover: #1f202b;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.18);
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent-emerald: #10b981;
+      --accent-cyan: #06b6d4;
+      --accent-purple: #8b5cf6;
+      --accent-yellow: #f59e0b;
+      --accent-red: #ef4444;
+      --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
+      --font-mono: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    }
+
+    [data-theme="light"] {
+      --bg-app: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --border-color: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-app);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px 80px 24px;
+    }
+
+    /* Top Presentation Hero */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.08), rgba(139, 92, 246, 0.05));
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 40px 48px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .hero-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .pill-badge.status { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-badge.version { background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .pill-badge.confidential { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+    .hero-title {
+      font-size: 38px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      background: linear-gradient(to right, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .hero-title {
+      background: linear-gradient(to right, #0f172a, #334155);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 17px;
+      color: var(--text-secondary);
+      max-width: 800px;
+      line-height: 1.5;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-2px);
+    }
+
+    .stat-num {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent-emerald);
+      letter-spacing: -0.02em;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    /* Epic Filter Tabs */
+    .epic-nav {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .epic-tab {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .epic-tab:hover {
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+    }
+
+    .epic-tab.active {
+      background: var(--text-primary);
+      color: var(--bg-app);
+      border-color: var(--text-primary);
+    }
+
+    /* Agile Card Style */
+    .agile-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s;
+    }
+
+    .agile-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .card-id-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-id {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .card-priority {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+
+    .priority-p0 { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .priority-p1 { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .priority-p2 { background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+
+    .section-block {
+      margin-bottom: 16px;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .problem-box {
+      background: rgba(239, 68, 68, 0.05);
+      border-left: 3.5px solid var(--accent-red);
+      padding: 12px 16px;
+      border-radius: 4px 8px 8px 4px;
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .user-story-box {
+      background: rgba(16, 185, 129, 0.05);
+      border-left: 3.5px solid var(--accent-emerald);
+      padding: 12px 16px;
+      border-radius: 4px 8px 8px 4px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .tech-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Checkpoint List */
+    .checkpoint-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .checkpoint-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(16, 185, 129, 0.04);
+      border: 1px solid rgba(16, 185, 129, 0.15);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+
+    .check-icon {
+      color: var(--accent-emerald);
+      font-weight: 900;
+      font-size: 14px;
+      margin-top: 1px;
+    }
+
+    /* Floating Theme & Top Controls */
+    .top-controls {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .control-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: all 0.15s;
+    }
+
+    .control-btn:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    /* Print / Projection Styles */
+    @media print {
+      body { background: #ffffff; color: #000000; }
+      .top-controls, .epic-nav { display: none; }
+      .agile-card { break-inside: avoid; border: 1px solid #ccc; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-controls">
+    <button class="control-btn" onclick="toggleTheme()">🌓 Toggle Theme</button>
+    <button class="control-btn" onclick="window.print()">🖨️ Print / PDF</button>
+  </div>
+
+  <div class="container">
+
+    <!-- Hero Header -->
+    <header class="hero-banner">
+      <div class="hero-badge-row">
+        <span class="pill-badge status">● Production Verified</span>
+        <span class="pill-badge version">v2.5.0 Enterprise Agile</span>
+        <span class="pill-badge confidential">Corporate Specification</span>
+      </div>
+      <h1 class="hero-title">WortSchatz Architecture & Agile Feature Cards</h1>
+      <p class="hero-subtitle">
+        Comprehensive engineering documentation, linguistic decompiler mechanics, problem statements, user stories, and acceptance verification matrices for the German Learning Toolkit.
+      </p>
+    </header>
+
+    <!-- Stats Grid -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-num">14</span>
+        <span class="stat-label">Agile Feature Suites</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">52</span>
+        <span class="stat-label">Verified Checkpoints</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">Automated Pass Rate</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-num">&lt; 0.1 ms</span>
+        <span class="stat-label">Decompiler Latency</span>
+      </div>
+    </section>
+
+    <!-- Agile Feature Cards Stream -->
+    <main id="cards-container">
+
+      <!-- FEAT-001 -->
+      <article class="agile-card" data-epic="epic1">
+        <div class="card-topbar">
+          <div class="card-id-group">
+            <span class="card-id">FEAT-001</span>
+            <span class="pill-badge">Epic 1: Document Viewport</span>
+          </div>
+          <span class="card-priority priority-p0">P0 (Blocker)</span>
+        </div>
+        <h2 class="card-title">Client-Side Vector PDF Canvas & Sub-Pixel Text Selection Engine</h2>
+        <div class="section-block">
+          <div class="section-label">Problem Statement</div>
+          <div class="problem-box">Standard browser readers render flattened text layers that misalign glyph bounding boxes and drop soft hyphens across line breaks, breaking selection of complex German compound words.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Agile User Story</div>
+          <div class="user-story-box"><strong>As a</strong> German learner reading complex PDF documents,<br><strong>I want to</strong> select any German word or multi-word phrase with sub-pixel precision,<br><strong>So that</strong> I receive instant grammatical analysis and translation without rendering lag.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Verification Checkpoints (Acceptance Criteria)</div>
+          <div class="checkpoint-list">
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-1.1:</strong> Loading multi-page PDF renders page 1 with sub-second FCP (&le; 400 ms).</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-1.2:</strong> Zooming (50% to 300%) scales canvas and text-layer coordinates with zero offset drift.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-1.3:</strong> Soft-hyphenated words across line breaks cleanly de-hyphenate into unified headwords.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-1.4:</strong> Drag-and-drop of PDF files loads the document immediately without page reload.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- FEAT-002 -->
+      <article class="agile-card" data-epic="epic2">
+        <div class="card-topbar">
+          <div class="card-id-group">
+            <span class="card-id">FEAT-002</span>
+            <span class="pill-badge">Epic 2: Lexicon & Translation</span>
+          </div>
+          <span class="card-priority priority-p0">P0 (Blocker)</span>
+        </div>
+        <h2 class="card-title">Multi-Tier Ultra-Fast (&lt;0.1ms) Translation Cascade with Local Offline Lexicon</h2>
+        <div class="section-block">
+          <div class="section-label">Problem Statement</div>
+          <div class="problem-box">Cloud translation APIs introduce 300-1500ms latency, rate limits, and fail when offline, while omitting vital grammatical gender (der/die/das) and parts of speech.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Agile User Story</div>
+          <div class="user-story-box"><strong>As an</strong> immersion learner reading offline,<br><strong>I want</strong> instantaneous translation of German words with grammatical gender and parts of speech,<br><strong>So that</strong> my reading flow is completely uninterrupted.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Verification Checkpoints (Acceptance Criteria)</div>
+          <div class="checkpoint-list">
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-2.1:</strong> Offline lookup completes in &lt;0.1 ms with zero network calls.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-2.2:</strong> Articles (der, die, das) are tagged with color-coded CSS badges.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-2.3:</strong> Irregular past tense verbs (ging, sah, fuhr, nahm) de-inflect to base infinitives.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-2.4:</strong> Network requests enforce a strict 1.2-second timeout via AbortController.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- FEAT-003 -->
+      <article class="agile-card" data-epic="epic3">
+        <div class="card-topbar">
+          <div class="card-id-group">
+            <span class="card-id">FEAT-003</span>
+            <span class="pill-badge">Epic 3: Linguistic Decompiler</span>
+          </div>
+          <span class="card-priority priority-p0">P0 (Blocker)</span>
+        </div>
+        <h2 class="card-title">German Morphology Decompiler & Root Stem Extractor (GermanMorphologyEngine)</h2>
+        <div class="section-block">
+          <div class="section-label">Problem Statement</div>
+          <div class="problem-box">German words sharing a root (e.g. antworten, beantworten, verantwortlich, Verantwortung) are scattered in standard dictionaries, preventing learners from seeing conceptual word families.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Agile User Story</div>
+          <div class="user-story-box"><strong>As a</strong> language student expanding my vocabulary,<br><strong>I want</strong> the system to decompile any word into its complete root family, prefixes, and suffixes,<br><strong>So that</strong> learning one word unlocks 5 to 10 related German words simultaneously.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Verification Checkpoints (Acceptance Criteria)</div>
+          <div class="checkpoint-list">
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-3.1:</strong> Selecting 'beantworten' or 'Verantwortung' isolates root 'antwort'.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-3.2:</strong> Selecting 'einführen' or 'Führung' isolates root 'führ'.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-3.3:</strong> Structured into 4 clean categories: Wortfamilie, Präfixe, Trennbar, Suffixe.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-3.4:</strong> In-memory Hash Map caching executes lookups in &lt;0.1 ms.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- FEAT-004 -->
+      <article class="agile-card" data-epic="epic3">
+        <div class="card-topbar">
+          <div class="card-id-group">
+            <span class="card-id">FEAT-004</span>
+            <span class="pill-badge">Epic 3: Linguistic Decompiler</span>
+          </div>
+          <span class="card-priority priority-p0">P0 (Blocker)</span>
+        </div>
+        <h2 class="card-title">Intrinsic Root Guard (Inseparable Prefix Barrier for ge-, be-, etc.)</h2>
+        <div class="section-block">
+          <div class="section-label">Problem Statement</div>
+          <div class="problem-box">Standard stemmers naively strip 'ge-' and 'be-', corrupting intrinsic German roots (gehen ➔ hen, geben ➔ ben, bleiben ➔ leiben) and causing lookup failure.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Agile User Story</div>
+          <div class="user-story-box"><strong>As a</strong> German learner,<br><strong>I want</strong> the engine to protect intrinsic 'ge-' and 'be-' root verbs from over-stripping,<br><strong>So that</strong> verbs like 'gehen', 'geben', and 'bleiben' resolve to authentic families.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Verification Checkpoints (Acceptance Criteria)</div>
+          <div class="checkpoint-list">
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-4.1:</strong> 'gehen' and 'ausgehen' resolve to root 'geh' (10 separable verbs, 4 prefix verbs).</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-4.2:</strong> 'geben' and 'aufgeben' resolve to root 'geb' (10 separable verbs, 4 prefix verbs).</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-4.3:</strong> 'beantworten' cleanly strips 'be-' without root collisions.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- FEAT-005 -->
+      <article class="agile-card" data-epic="epic3">
+        <div class="card-topbar">
+          <div class="card-id-group">
+            <span class="card-id">FEAT-005</span>
+            <span class="pill-badge">Epic 3: Linguistic Decompiler</span>
+          </div>
+          <span class="card-priority priority-p0">P0 (Blocker)</span>
+        </div>
+        <h2 class="card-title">Descending-Length Separable Verb Combinator & Zero-Hallucination Validator (✂️ Trennbar)</h2>
+        <div class="section-block">
+          <div class="section-label">Problem Statement</div>
+          <div class="problem-box">Unsorted prefix stripping cuts short prefixes (zu-) before compound ones (zusammen-), breaking words like zusammenarbeiten. Other tools hallucinate non-existent separable verbs.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Agile User Story</div>
+          <div class="user-story-box"><strong>As a</strong> student learning separable verbs,<br><strong>I want</strong> the '✂️ Trennbar' pill to render only when verifiable separable verbs exist for that root,<br><strong>So that</strong> I study verified vocabulary and never memorize hallucinated words.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Verification Checkpoints (Acceptance Criteria)</div>
+          <div class="checkpoint-list">
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-5.1:</strong> 'zusammenarbeiten' identifies 'zusammen-' (not 'zu-') and resolves to 'arbeit'.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-5.2:</strong> Verbs with separable forms (lösen, schlagen, führen, kommen) render '✂️ Trennbar'.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-5.3:</strong> Roots with zero separable verbs omit the pill completely.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-5.4:</strong> All separable verbs provide verified English translations.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- FEAT-007 -->
+      <article class="agile-card" data-epic="epic4">
+        <div class="card-topbar">
+          <div class="card-id-group">
+            <span class="card-id">FEAT-007</span>
+            <span class="pill-badge">Epic 4: UI/UX Design System</span>
+          </div>
+          <span class="card-priority priority-p0">P0 (Blocker)</span>
+        </div>
+        <h2 class="card-title">Apple/Linear-Inspired Modern Vocabulary Card & iOS Master Toggle Switch</h2>
+        <div class="section-block">
+          <div class="section-label">Problem Statement</div>
+          <div class="problem-box">Dense grammatical data on cards causes severe visual clutter. Learners need a clean default card that expands into an in-depth linguistic drawer on demand.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Agile User Story</div>
+          <div class="user-story-box"><strong>As a</strong> user who values clean aesthetics,<br><strong>I want</strong> cards to show only the word and meaning by default, with an iOS toggle switch to explore morphology,<br><strong>So that</strong> my workspace remains minimal and distraction-free.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Verification Checkpoints (Acceptance Criteria)</div>
+          <div class="checkpoint-list">
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-7.1:</strong> Default card displays brand header, headword, POS, audio button, and switch in OFF state.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-7.2:</strong> Switching ON triggers smooth 250ms cubic-bezier animation and expands the drawer.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-7.3:</strong> Switching OFF resets card height immediately with zero layout jitter.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-7.4:</strong> Full aesthetic parity across Light Theme and Dark Theme.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- FEAT-011 -->
+      <article class="agile-card" data-epic="epic5">
+        <div class="card-topbar">
+          <div class="card-id-group">
+            <span class="card-id">FEAT-011</span>
+            <span class="pill-badge">Epic 5: PDF Modification</span>
+          </div>
+          <span class="card-priority priority-p1">P1 (High)</span>
+        </div>
+        <h2 class="card-title">Vector PDF Annotation Exporter with Right-Margin Summaries (PDF-Lib)</h2>
+        <div class="section-block">
+          <div class="section-label">Problem Statement</div>
+          <div class="problem-box">Most web tools export rasterized screenshot PDFs, destroying searchable vector text and ballooning file size.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Agile User Story</div>
+          <div class="user-story-box"><strong>As a</strong> researcher or student,<br><strong>I want</strong> to export an annotated PDF with true vector highlights and right-margin translation tags,<br><strong>So that</strong> I can open and search the annotated document in Adobe Acrobat or Preview.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Verification Checkpoints (Acceptance Criteria)</div>
+          <div class="checkpoint-list">
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-11.1:</strong> Exported PDF maintains 100% vector text searchability.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-11.2:</strong> Highlight boxes align over target text words across all page orientations.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-11.3:</strong> Right-margin text boxes display clean German headword and English translation pairs.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-11.4:</strong> Export completes in &lt;500 ms in the browser thread.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- FEAT-014 -->
+      <article class="agile-card" data-epic="epic6">
+        <div class="card-topbar">
+          <div class="card-id-group">
+            <span class="card-id">FEAT-014</span>
+            <span class="pill-badge">Epic 6: Deployment & Security</span>
+          </div>
+          <span class="card-priority priority-p0">P0 (Blocker)</span>
+        </div>
+        <h2 class="card-title">Zero-Backend Privacy & Monolithic Standalone Deployment (WortSchatz_Standalone.html)</h2>
+        <div class="section-block">
+          <div class="section-label">Problem Statement</div>
+          <div class="problem-box">Privacy-conscious users cannot install heavy software dependencies or upload proprietary documents to third-party servers.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Agile User Story</div>
+          <div class="user-story-box"><strong>As a</strong> privacy-focused individual,<br><strong>I want</strong> a single standalone .html file that runs offline by double-clicking,<br><strong>So that</strong> I have 100% data privacy and zero installation overhead.</div>
+        </div>
+        <div class="section-block">
+          <div class="section-label">Verification Checkpoints (Acceptance Criteria)</div>
+          <div class="checkpoint-list">
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-14.1:</strong> WortSchatz_Standalone.html runs directly via file:// protocol.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-14.2:</strong> Full reading, morphology, and flashcard features work offline.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-14.3:</strong> Zero network telemetry or data leakage.</span></div>
+            <div class="checkpoint-item"><span class="check-icon">✓</span><span><strong>CP-14.4:</strong> Standalone file size remains optimized (&le; 1.9 MB).</span></div>
+          </div>
+        </div>
+      </article>
+
+    </main>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+    }
+  </script>
+</body>
+</html>

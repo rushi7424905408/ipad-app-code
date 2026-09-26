@@ -1,0 +1,31 @@
+{
+  "name": "WortSchatz • German PDF Reader",
+  "short_name": "WortSchatz",
+  "description": "High-performance German PDF reader with instant translation, margin glossaries, Apple Pencil support, and Obsidian sync.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "AppIcon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Open German PDF",
+      "url": "./index.html?action=open",
+      "description": "Open a German PDF document"
+    },
+    {
+      "name": "Vocabulary Deck",
+      "url": "./index.html?action=vocab",
+      "description": "Review saved vocabulary"
+    }
+  ]
+}

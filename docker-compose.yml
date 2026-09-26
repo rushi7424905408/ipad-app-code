@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  wortschatz:
+    build: .
+    image: wortschatz-reader:latest
+    container_name: wortschatz
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount your local Obsidian Vault directory to receive auto-synced vocabulary.md
+      - ~/Desktop/Obsidian Vault:/root/Desktop/Obsidian Vault
+    environment:
+      - PORT=8000
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/index.html')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

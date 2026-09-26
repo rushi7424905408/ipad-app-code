@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="de" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+  <title>WortSchatz • German PDF Reader & Obsidian Sync</title>
+  
+  <!-- Apple & PWA Standalone Configuration for iPad Air M3 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WortSchatz">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="apple-touch-icon" href="AppIcon.svg">
+  <link rel="icon" type="image/svg+xml" href="AppIcon.svg">
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Direct Root Script Dependencies -->
+  <script src="pdf.min.js"></script>
+  <script src="pdf-lib.min.js"></script>
+  <script src="lucide.js"></script>
+</head>
+<body>
+
+  <div class="app-shell">
+    <header class="app-topbar">
+      <div class="topbar-left">
+        <div class="app-logo-badge">DE</div>
+        <div class="podcast-meta">
+          <input type="text" id="podcast-title-input" class="topbar-title-input" value="German Podcast" placeholder="Document / Podcast Title">
+        </div>
+      </div>
+
+      <div class="topbar-center">
+        <div class="nav-capsule">
+          <button class="capsule-btn" id="btn-prev-page" title="Previous Page"><i data-lucide="chevron-left"></i></button>
+          <div class="page-indicator">
+            <input type="number" id="current-page-input" value="1" min="1">
+            <span class="page-total">/ <span id="total-pages">1</span></span>
+          </div>
+          <button class="capsule-btn" id="btn-next-page" title="Next Page"><i data-lucide="chevron-right"></i></button>
+        </div>
+
+        <div class="zoom-capsule">
+          <button class="capsule-btn" id="btn-zoom-out" title="Zoom Out"><i data-lucide="minus"></i></button>
+          <span id="zoom-percentage" class="zoom-val">125%</span>
+          <button class="capsule-btn" id="btn-zoom-in" title="Zoom In"><i data-lucide="plus"></i></button>
+          <button class="capsule-btn" id="btn-zoom-fit" title="Fit Width"><i data-lucide="maximize-2"></i></button>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <input type="file" id="pdf-file-input" accept="application/pdf,.pdf" style="display:none;">
+        <button class="action-btn" onclick="document.getElementById('pdf-file-input').click()" title="Open PDF">
+          <i data-lucide="folder-open"></i> <span>Open</span>
+        </button>
+        <button class="action-btn" id="btn-load-sample" title="Load Sample Reading">
+          <i data-lucide="file-text"></i> <span>Sample</span>
+        </button>
+        <button class="action-btn btn-obsidian-pill" id="btn-save-obsidian" title="Obsidian Sync Options">
+          <i data-lucide="book-down"></i> <span>Obsidian</span>
+        </button>
+        <button class="action-btn btn-export-pill" id="btn-download-annotated" title="Download Annotated PDF">
+          <i data-lucide="download"></i> <span>Export</span>
+        </button>
+        <button class="action-btn" id="btn-toggle-vocab" title="Vocabulary Deck">
+          <i data-lucide="book-marked"></i> <span id="vocab-count">0</span>
+        </button>
+        <button class="icon-action-btn" id="btn-toggle-sidebar" title="Toggle Live Glossary Sidebar">
+          <i data-lucide="panel-right"></i>
+        </button>
+        <button class="icon-action-btn" id="btn-toggle-theme" title="Toggle Dark Mode">
+          <i data-lucide="moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="app-workspace">
+      <div id="pdf-viewer-container" class="pdf-canvas-container">
+        <div class="pdf-loading">
+          <div class="spinner"></div>
+          <p>Rendering German Document...</p>
+        </div>
+      </div>
+
+      <!-- Touch & Pencil Draggable Splitter Divider -->
+      <div class="sidebar-resizer" id="sidebar-resizer" title="Trennlinie ziehen zum Anpassen der Breite (Doppeltipp zum Ein-/Ausklappen)">
+        <div class="resizer-handle"></div>
+      </div>
+
+      <!-- Dedicated Live Smart Glossary Sidebar (Unlimited Cards & Searchable, Zero Text Occlusion) -->
+      <aside class="glossary-sidebar" id="glossary-sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title"><i data-lucide="sparkles"></i> Live Smart Glossary</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="gloss-badge" id="gloss-count-badge">0 words</span>
+            <button class="icon-btn-tiny" id="btn-collapse-sidebar" title="Seitenleiste einklappen">&times;</button>
+          </div>
+        </div>
+
+        <div class="sidebar-filter-bar">
+          <div class="filter-tab-group">
+            <button class="filter-tab active" id="tab-filter-all">All Words</button>
+            <button class="filter-tab" id="tab-filter-page">This Page</button>
+          </div>
+          <div class="sidebar-search-box">
+            <i data-lucide="search"></i>
+            <input type="text" id="input-gloss-search" placeholder="Filter vocabulary...">
+          </div>
+        </div>
+
+        <div class="glossary-stream" id="glossary-stream-list">
+          <div class="glossary-empty">
+            <i data-lucide="mouse-pointer-click"></i>
+            <p>Tap or select any German word to see its instant translation and article here.</p>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Floating Edge Button to bring back sidebar when collapsed -->
+    <button class="sidebar-edge-tab" id="btn-sidebar-edge-tab" title="Vokabelliste anzeigen">
+      <i data-lucide="chevron-left"></i>
+      <span class="edge-tab-badge" id="edge-vocab-badge">0</span>
+    </button>
+
+    <div class="bottom-tools-island">
+      <button class="island-tool-btn" id="btn-undo" title="Undo (Cmd+Z)"><i data-lucide="undo-2"></i> Undo</button>
+      <button class="island-tool-btn" id="btn-toggle-eraser" title="Eraser Tool"><i data-lucide="eraser"></i> Eraser</button>
+      <div class="island-divider"></div>
+      <label class="island-toggle" title="Auto-highlight on select">
+        <input type="checkbox" id="toggle-auto-annotate">
+        <span class="island-slider"></span>
+        <span class="island-toggle-text">Auto-Highlight</span>
+      </label>
+      <div class="island-divider"></div>
+      <button class="island-tool-btn" id="btn-practice-flashcards" title="Practice Flashcards"><i data-lucide="play-circle"></i> Flashcards</button>
+      <button class="island-tool-btn danger" id="btn-clear-all" title="Clear Highlights"><i data-lucide="trash-2"></i></button>
+    </div>
+  </div>
+
+  <div id="translation-popup"></div>
+  <div id="annotation-inspector"></div>
+
+  <!-- Obsidian Sync Modal for iPad Air M3 & Self-Hosted -->
+  <div class="modal-overlay" id="obsidian-modal">
+    <div class="modal-card obsidian-modal-content">
+      <div class="sidebar-header" style="background:transparent; padding:0 0 14px 0;">
+        <span style="font-weight:700; font-size:15px; display:flex; align-items:center; gap:8px;">
+          <i data-lucide="book-down" style="color:var(--accent-purple);"></i> Obsidian Vault Synchronization
+        </span>
+        <button class="icon-btn-tiny" id="btn-close-obsidian-modal">&times;</button>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <label style="font-size:11.5px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Obsidian Vault Name (for iPad / App):</label>
+        <input type="text" id="obsidian-vault-name-input" class="topbar-title-input" style="width:100%; background:var(--bg-subtle); border:1px solid var(--border-subtle); padding:8px 12px; border-radius:var(--radius-sm);" value="Obsidian Vault" placeholder="e.g. My Vault or Obsidian">
+      </div>
+
+      <div class="obsidian-option-card" id="btn-sync-ipad-app">
+        <div class="obsidian-option-icon" style="background:linear-gradient(135deg, #7c3aed, #4f46e5);"><i data-lucide="tablet"></i></div>
+        <div class="obsidian-option-info">
+          <div class="obsidian-option-title">Open in iPad Obsidian App</div>
+          <div class="obsidian-option-desc">Direct <code>obsidian://</code> URI dispatch into your iPad vault</div>
+        </div>
+        <i data-lucide="chevron-right" style="color:var(--text-muted); width:18px;"></i>
+      </div>
+
+      <div class="obsidian-option-card" id="btn-sync-server-api">
+        <div class="obsidian-option-icon" style="background:linear-gradient(135deg, #2563eb, #0284c7);"><i data-lucide="server"></i></div>
+        <div class="obsidian-option-info">
+          <div class="obsidian-option-title">Sync to Self-Hosted Server</div>
+          <div class="obsidian-option-desc">Auto-appends to <code>vocabulary.md</code> on host server</div>
+        </div>
+        <i data-lucide="chevron-right" style="color:var(--text-muted); width:18px;"></i>
+      </div>
+
+      <div class="obsidian-option-card" id="btn-sync-download-md">
+        <div class="obsidian-option-icon" style="background:linear-gradient(135deg, #059669, #10b981);"><i data-lucide="download"></i></div>
+        <div class="obsidian-option-info">
+          <div class="obsidian-option-title">Download / Share Markdown (.md)</div>
+          <div class="obsidian-option-desc">Save directly to iCloud Drive or Files app</div>
+        </div>
+        <i data-lucide="chevron-right" style="color:var(--text-muted); width:18px;"></i>
+      </div>
+    </div>
+  </div>
+
+  <aside class="vocab-drawer" id="vocab-drawer">
+    <div class="sidebar-header">
+      <div class="sidebar-title"><i data-lucide="book-marked"></i> Saved Vocabulary</div>
+      <button class="icon-btn-tiny" id="btn-close-vocab">&times;</button>
+    </div>
+    <div style="padding: 10px; display: flex; gap: 6px; border-bottom: 1px solid var(--border-subtle);">
+      <button class="action-btn" id="btn-drawer-obsidian" style="flex:1;">Obsidian</button>
+      <button class="action-btn" id="btn-export-anki" style="flex:1;">Anki (.tsv)</button>
+      <button class="action-btn" id="btn-export-csv" style="flex:1;">CSV</button>
+    </div>
+    <div class="glossary-stream" id="vocab-list-items"></div>
+  </aside>
+
+  <div class="modal-overlay" id="flashcard-modal">
+    <div class="modal-card">
+      <div class="sidebar-header" style="background:transparent; padding:0 0 12px 0;">
+        <span style="font-weight:700; font-size:14px;">Vocabulary Flashcards</span>
+        <span id="card-index" style="font-size:12px; color:var(--text-muted)">1 / 1</span>
+        <button class="icon-btn-tiny" id="btn-close-flashcards">&times;</button>
+      </div>
+
+      <div style="perspective:1000px; margin: 16px 0;">
+        <div id="flashcard-inner" style="background:var(--bg-subtle); border-radius:var(--radius-lg); padding:30px 20px; text-align:center; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; border:1px solid var(--border-subtle);">
+          <div class="card-front">
+            <span class="badge" id="card-gender" style="margin-bottom:6px;"></span>
+            <div id="card-german" style="font-size:22px; font-weight:800; color:var(--text-primary);">Wort</div>
+            <span style="font-size:11px; color:var(--text-muted); margin-top:8px;">Tap card to flip</span>
+          </div>
+          <div class="card-back" style="display:none;">
+            <span class="badge" id="card-pos" style="margin-bottom:6px;"></span>
+            <div id="card-english" style="font-size:18px; font-weight:700; color:var(--accent-primary);">Meaning</div>
+            <span style="font-size:11px; color:var(--text-muted); margin-top:8px;">German to English</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <button class="action-btn" id="btn-card-prev"><i data-lucide="arrow-left"></i> Prev</button>
+        <button class="action-btn" id="btn-card-audio"><i data-lucide="volume-2"></i></button>
+        <button class="action-btn btn-export-pill" id="btn-card-next">Next <i data-lucide="arrow-right"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="sample_pdf_data.js"></script>
+  <script src="dictionary_data.js"></script>
+  <script src="translator.js"></script>
+  <script src="tts.js"></script>
+  <script src="annotator.js"></script>
+  <script src="vocabulary.js"></script>
+  <script src="pdf_viewer.js"></script>
+  <script src="app.js"></script>
+
+  <script>
+    // Offline PWA Service Worker Registration
+    if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then((reg) => {
+          console.log('[WortSchatz] Offline Service Worker registered:', reg.scope);
+        }).catch((err) => {
+          console.warn('[WortSchatz] Service Worker registration failed:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>

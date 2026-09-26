@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WortSchatz - iPad Simulator & Hardware Experience</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-desk: #090d16;
+      --bg-panel: rgba(20, 27, 45, 0.85);
+      --border-panel: rgba(255, 255, 255, 0.1);
+      --accent-blue: #38bdf8;
+      --accent-cyan: #06b6d4;
+      --accent-gold: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --ipad-bezel: #12141a;
+      --ipad-border: #2a2e39;
+      --ipad-radius: 44px;
+      --screen-radius: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at 50% 10%, #1e293b 0%, #090d16 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Control Bar */
+    header.sim-header {
+      background: var(--bg-panel);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-panel);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-badge {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+    }
+
+    .brand-titles h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-simulator {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: var(--accent-blue);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-titles p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Controls Center */
+    .sim-controls-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid var(--border-panel);
+    }
+
+    .ctrl-pill-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-pill-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .ctrl-pill-btn.active {
+      background: linear-gradient(135deg, #0ea5e9, #2563eb);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(14, 165, 233, 0.4);
+    }
+
+    .ctrl-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border-panel);
+      margin: 0 2px;
+    }
+
+    /* Right Action Buttons */
+    .sim-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .scale-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .scale-selector select {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--border-panel);
+      color: var(--text-main);
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .btn-action-primary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none;
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-action-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
+    }
+
+    /* Simulator Workspace Stage */
+    .sim-stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px 48px;
+      overflow: auto;
+      perspective: 1200px;
+    }
+
+    /* iPad Hardware Body */
+    .ipad-device-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: center center;
+    }
+
+    .ipad-chassis {
+      background: linear-gradient(145deg, #1e222d, #101217);
+      border: 3px solid var(--ipad-border);
+      box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 24px 60px -12px rgba(0, 0, 0, 0.8),
+        0 12px 24px -8px rgba(0, 0, 0, 0.6),
+        inset 0 0 12px rgba(0, 0, 0, 0.7);
+      border-radius: var(--ipad-radius);
+      padding: 16px;
+      position: relative;
+      transition: all 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    /* Camera Sensor Pill */
+    .ipad-camera {
+      position: absolute;
+      background: #090a0d;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 50%;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ipad-camera::after {
+      content: '';
+      width: 4px;
+      height: 4px;
+      background: #1e3a8a;
+      border-radius: 50%;
+      box-shadow: inset 0 0 2px #38bdf8;
+    }
+
+    /* Home Indicator */
+    .ipad-home-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 140px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 10px;
+      z-index: 100;
+      pointer-events: none;
+      transition: all 0.3s;
+    }
+
+    /* Screen Bezel & Display */
+    .ipad-screen {
+      background: #000;
+      border-radius: var(--screen-radius);
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .ipad-screen iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+      background: #fff;
+    }
+
+    /* Realistic Apple Pencil Overlay */
+    .apple-pencil-stylus {
+      position: fixed;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-10px, -90px) rotate(-35deg);
+      transition: opacity 0.2s;
+      display: none;
+    }
+
+    .pencil-body {
+      width: 14px;
+      height: 120px;
+      background: linear-gradient(to right, #f8fafc 0%, #ffffff 40%, #e2e8f0 100%);
+      border-radius: 4px 4px 2px 2px;
+      position: relative;
+      box-shadow: -4px 6px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    .pencil-tip-cone {
+      width: 0;
+      height: 0;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 24px solid #e2e8f0;
+      position: absolute;
+      bottom: -24px;
+      left: 0;
+    }
+
+    .pencil-nib {
+      width: 4px;
+      height: 6px;
+      background: #334155;
+      border-radius: 0 0 2px 2px;
+      position: absolute;
+      bottom: -30px;
+      left: 5px;
+    }
+
+    .pencil-badge-logo {
+      position: absolute;
+      top: 14px;
+      left: 3px;
+      font-size: 8px;
+      color: #94a3b8;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      transform: rotate(90deg);
+    }
+
+    /* Touch indicator */
+    .touch-cursor-indicator {
+      position: fixed;
+      pointer-events: none;
+      z-index: 99998;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.35);
+      border: 2px solid rgba(56, 189, 248, 0.8);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    /* Information Drawer / Guidance Bar */
+    .sim-guide-panel {
+      background: var(--bg-panel);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border-panel);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .guide-features-list {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .guide-feature-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feature-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .feature-icon.green { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .feature-icon.blue { background: rgba(14, 165, 233, 0.2); color: #38bdf8; }
+    .feature-icon.purple { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+    .feature-icon.gold { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+    /* Comparison side-by-side mode */
+    .sim-stage.comparison-mode {
+      gap: 40px;
+    }
+
+    .pc-mockup-frame {
+      display: none;
+      flex-direction: column;
+      background: #1e222d;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .pc-window-titlebar {
+      background: #11141c;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .pc-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .pc-dot.red { background: #ef4444; }
+    .pc-dot.yellow { background: #f59e0b; }
+    .pc-dot.green { background: #10b981; }
+
+    .pc-title {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-left: 8px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation & Simulator Controls -->
+  <header class="sim-header">
+    <div class="header-brand">
+      <div class="brand-logo-badge">📖</div>
+      <div class="brand-titles">
+        <h1>WortSchatz <span class="badge-simulator">iPad Studio</span></h1>
+        <p>Interactive Apple Pencil & Touch Reader Testing Lab</p>
+      </div>
+    </div>
+
+    <!-- Device Selector & Orientation Switch -->
+    <div class="sim-controls-group">
+      <button class="ctrl-pill-btn active" id="btn-device-11" onclick="setDevice('ipad-11')">
+        iPad Pro 11"
+      </button>
+      <button class="ctrl-pill-btn" id="btn-device-13" onclick="setDevice('ipad-13')">
+        iPad Pro 13"
+      </button>
+      <button class="ctrl-pill-btn" id="btn-device-air" onclick="setDevice('ipad-air')">
+        iPad Air
+      </button>
+      <button class="ctrl-pill-btn" id="btn-device-mini" onclick="setDevice('ipad-mini')">
+        iPad Mini
+      </button>
+
+      <div class="ctrl-divider"></div>
+
+      <button class="ctrl-pill-btn active" id="btn-orient-landscape" onclick="setOrientation('landscape')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="3"/><circle cx="12" cy="12" r="1"/></svg>
+        Landscape
+      </button>
+      <button class="ctrl-pill-btn" id="btn-orient-portrait" onclick="setOrientation('portrait')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="3"/><circle cx="12" cy="12" r="1"/></svg>
+        Portrait
+      </button>
+
+      <div class="ctrl-divider"></div>
+
+      <!-- Stylus Input Mode Switcher -->
+      <button class="ctrl-pill-btn active" id="btn-input-pencil" onclick="setInputMode('pencil')" title="Simulates Apple Pencil nib & clicks">
+        ✍️ Apple Pencil
+      </button>
+      <button class="ctrl-pill-btn" id="btn-input-touch" onclick="setInputMode('touch')" title="Simulates finger touch gestures">
+        👆 Touch
+      </button>
+      <button class="ctrl-pill-btn" id="btn-input-mouse" onclick="setInputMode('mouse')" title="Simulates standard mouse">
+        🖱️ Mouse
+      </button>
+    </div>
+
+    <!-- Right Zoom & Quick Actions -->
+    <div class="sim-right-actions">
+      <div class="scale-selector">
+        <span>Zoom:</span>
+        <select id="scale-select" onchange="setScale(this.value)">
+          <option value="auto" selected>Fit Window</option>
+          <option value="0.6">60%</option>
+          <option value="0.75">75%</option>
+          <option value="0.85">85%</option>
+          <option value="1.0">100% (Native)</option>
+        </select>
+      </div>
+
+      <button class="ctrl-pill-btn" id="btn-compare-mode" onclick="toggleComparisonMode()" title="Verify PC experience side-by-side">
+        🖥️ Compare PC vs iPad
+      </button>
+
+      <a href="index.html" target="_blank" class="btn-action-primary">
+        <span>Open Native ↗</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Simulator Main Stage -->
+  <main class="sim-stage" id="sim-stage">
+    
+    <!-- iPad Physical Device -->
+    <div class="ipad-device-wrapper" id="ipad-wrapper">
+      <div class="ipad-chassis" id="ipad-chassis">
+        <!-- Front Camera Sensor -->
+        <div class="ipad-camera" id="ipad-camera"></div>
+
+        <!-- iPad Glass Display Area -->
+        <div class="ipad-screen" id="ipad-screen">
+          <iframe id="app-frame" src="index.html" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        </div>
+
+        <!-- iPad Bottom Home Swipe Indicator -->
+        <div class="ipad-home-bar" id="ipad-home-bar"></div>
+      </div>
+    </div>
+
+    <!-- Side-by-Side PC Desktop Mockup Frame (Toggled by Compare Mode) -->
+    <div class="pc-mockup-frame" id="pc-mockup-frame">
+      <div class="pc-window-titlebar">
+        <div class="pc-dot red"></div>
+        <div class="pc-dot yellow"></div>
+        <div class="pc-dot green"></div>
+        <span class="pc-title">PC Desktop Edition — (1440×900) Full Wide Sidebar & Mouse Hover</span>
+      </div>
+      <div style="width: 720px; height: 500px; background: #fff;">
+        <iframe id="pc-frame" src="index.html" style="width: 100%; height: 100%; border: none;"></iframe>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Realistic Apple Pencil Cursor Overlay -->
+  <div class="apple-pencil-stylus" id="apple-pencil-stylus">
+    <div class="pencil-body">
+      <div class="pencil-badge-logo"> Pencil</div>
+      <div class="pencil-tip-cone"></div>
+      <div class="pencil-nib"></div>
+    </div>
+  </div>
+
+  <!-- Touch Cursor Indicator -->
+  <div class="touch-cursor-indicator" id="touch-cursor-indicator"></div>
+
+  <!-- Bottom Guidance Panel -->
+  <footer class="sim-guide-panel">
+    <div class="guide-features-list">
+      <div class="guide-feature-item">
+        <span class="feature-icon green">✓</span>
+        <span><strong>100% PDF View:</strong> Drawer is collapsed by default on iPad so the original document occupies full screen.</span>
+      </div>
+      <div class="guide-feature-item">
+        <span class="feature-icon blue">⚡</span>
+        <span><strong>Auto-Highlight:</strong> Selecting a German word highlights it & saves silently to drawer without screen jump.</span>
+      </div>
+      <div class="guide-feature-item">
+        <span class="feature-icon purple">✨</span>
+        <span><strong>Hover / Tap Card:</strong> Hovering (PC) or tapping (Pencil) any highlight flashes translation & morphology.</span>
+      </div>
+      <div class="guide-feature-item">
+        <span class="feature-icon gold">◀</span>
+        <span><strong>On-Demand Drawer:</strong> Tap the floating edge tab or topbar button to slide out your vocabulary anytime.</span>
+      </div>
+      <div class="guide-feature-item">
+        <span class="feature-icon green">🖥️</span>
+        <span><strong>PC Untouched:</strong> Wide screens keep sidebar visible by default; mouse drag & hover remain fully functional.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Device Spec Dimensions [Width x Height in CSS px]
+    const DEVICES = {
+      'ipad-11': { name: 'iPad Pro 11"', width: 1194, height: 834, bezel: 16, radius: 44, cameraPos: 'top' },
+      'ipad-13': { name: 'iPad Pro 13"', width: 1366, height: 1024, bezel: 18, radius: 48, cameraPos: 'top' },
+      'ipad-air': { name: 'iPad Air', width: 1180, height: 820, bezel: 16, radius: 40, cameraPos: 'top' },
+      'ipad-mini': { name: 'iPad Mini', width: 1133, height: 744, bezel: 14, radius: 36, cameraPos: 'top' }
+    };
+
+    let currentDevice = 'ipad-11';
+    let currentOrientation = 'landscape';
+    let currentInputMode = 'pencil';
+    let currentScale = 'auto';
+    let isComparisonMode = false;
+
+    const chassis = document.getElementById('ipad-chassis');
+    const screenEl = document.getElementById('ipad-screen');
+    const cameraEl = document.getElementById('ipad-camera');
+    const homeBar = document.getElementById('ipad-home-bar');
+    const wrapper = document.getElementById('ipad-wrapper');
+    const pencil = document.getElementById('apple-pencil-stylus');
+    const touchCursor = document.getElementById('touch-cursor-indicator');
+
+    function updateSimulatorLayout() {
+      const dev = DEVICES[currentDevice];
+      const isLand = currentOrientation === 'landscape';
+
+      const screenW = isLand ? dev.width : dev.height;
+      const screenH = isLand ? dev.height : dev.width;
+
+      screenEl.style.width = screenW + 'px';
+      screenEl.style.height = screenH + 'px';
+
+      // Chassis Bezel Size
+      chassis.style.padding = dev.bezel + 'px';
+      chassis.style.borderRadius = dev.radius + 'px';
+      screenEl.style.borderRadius = (dev.radius - dev.bezel/2) + 'px';
+
+      // Camera Positioning
+      cameraEl.style.top = (dev.bezel / 2 - 5) + 'px';
+      cameraEl.style.left = '50%';
+      cameraEl.style.transform = 'translateX(-50%)';
+      cameraEl.style.width = '10px';
+      cameraEl.style.height = '10px';
+
+      homeBar.style.bottom = '8px';
+      homeBar.style.left = '50%';
+      homeBar.style.transform = 'translateX(-50%)';
+      homeBar.style.width = '140px';
+      homeBar.style.height = '4px';
+
+      applyScale();
+    }
+
+    function setDevice(devKey) {
+      currentDevice = devKey;
+      document.querySelectorAll('[id^="btn-device-"]').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById('btn-device-' + devKey.replace('ipad-', ''));
+      if (activeBtn) activeBtn.classList.add('active');
+      updateSimulatorLayout();
+    }
+
+    function setOrientation(orient) {
+      currentOrientation = orient;
+      document.getElementById('btn-orient-landscape').classList.toggle('active', orient === 'landscape');
+      document.getElementById('btn-orient-portrait').classList.toggle('active', orient === 'portrait');
+      updateSimulatorLayout();
+    }
+
+    function setInputMode(mode) {
+      currentInputMode = mode;
+      document.getElementById('btn-input-pencil').classList.toggle('active', mode === 'pencil');
+      document.getElementById('btn-input-touch').classList.toggle('active', mode === 'touch');
+      document.getElementById('btn-input-mouse').classList.toggle('active', mode === 'mouse');
+
+      if (mode === 'mouse') {
+        pencil.style.display = 'none';
+        touchCursor.style.display = 'none';
+      }
+
+      // Sync mode to iframe
+      const appFrame = document.getElementById('app-frame');
+      if (appFrame) injectSimulatorBridgeIntoIframe(appFrame);
+    }
+
+    function setScale(scaleVal) {
+      currentScale = scaleVal;
+      applyScale();
+    }
+
+    function applyScale() {
+      const stage = document.getElementById('sim-stage');
+      const stageW = stage.clientWidth - 40;
+      const stageH = stage.clientHeight - 40;
+
+      const chassisW = chassis.offsetWidth;
+      const chassisH = chassis.offsetHeight;
+
+      let factor = 1;
+      if (currentScale === 'auto') {
+        const factorW = stageW / chassisW;
+        const factorH = stageH / chassisH;
+        factor = Math.min(factorW, factorH, 0.95);
+        if (factor > 1) factor = 1;
+      } else {
+        factor = parseFloat(currentScale);
+      }
+
+      wrapper.style.transform = `scale(${factor})`;
+    }
+
+    function toggleComparisonMode() {
+      isComparisonMode = !isComparisonMode;
+      const pcFrame = document.getElementById('pc-mockup-frame');
+      const simStage = document.getElementById('sim-stage');
+      const btn = document.getElementById('btn-compare-mode');
+
+      if (isComparisonMode) {
+        pcFrame.style.display = 'flex';
+        simStage.classList.add('comparison-mode');
+        btn.classList.add('active');
+        btn.innerHTML = '✕ Close Comparison';
+        currentScale = '0.55';
+        document.getElementById('scale-select').value = '0.6';
+        applyScale();
+      } else {
+        pcFrame.style.display = 'none';
+        simStage.classList.remove('comparison-mode');
+        btn.classList.remove('active');
+        btn.innerHTML = '🖥️ Compare PC vs iPad';
+        currentScale = 'auto';
+        document.getElementById('scale-select').value = 'auto';
+        applyScale();
+      }
+    }
+
+    // Seamless Apple Pencil & Touch Bridge inside iPad Screen
+    function injectSimulatorBridgeIntoIframe(frame) {
+      try {
+        const fDoc = frame.contentDocument || frame.contentWindow?.document;
+        if (!fDoc) return;
+
+        // 1. Inject Apple Pencil & Touch styles into iframe
+        let styleTag = fDoc.getElementById('sim-injected-style');
+        if (!styleTag) {
+          styleTag = fDoc.createElement('style');
+          styleTag.id = 'sim-injected-style';
+          styleTag.textContent = `
+            .apple-pencil-stylus-iframe {
+              position: fixed !important;
+              pointer-events: none !important;
+              z-index: 2147483647 !important;
+              transform: translate(-7px, -92px) rotate(-35deg) !important;
+              display: none;
+              will-change: transform, left, top;
+            }
+            .apple-pencil-stylus-iframe .pencil-body {
+              width: 14px;
+              height: 120px;
+              background: linear-gradient(to right, #f8fafc 0%, #ffffff 40%, #e2e8f0 100%);
+              border-radius: 4px 4px 2px 2px;
+              position: relative;
+              box-shadow: -4px 6px 16px rgba(0, 0, 0, 0.45);
+            }
+            .apple-pencil-stylus-iframe .pencil-tip-cone {
+              width: 0;
+              height: 0;
+              border-left: 7px solid transparent;
+              border-right: 7px solid transparent;
+              border-top: 24px solid #e2e8f0;
+              position: absolute;
+              bottom: -24px;
+              left: 0;
+            }
+            .apple-pencil-stylus-iframe .pencil-nib {
+              width: 4px;
+              height: 6px;
+              background: #1e293b;
+              border-radius: 0 0 2px 2px;
+              position: absolute;
+              bottom: -30px;
+              left: 5px;
+            }
+            .apple-pencil-stylus-iframe .pencil-badge-logo {
+              position: absolute;
+              top: 14px;
+              left: 3px;
+              font-size: 8px;
+              color: #94a3b8;
+              font-weight: 700;
+              letter-spacing: -0.5px;
+              transform: rotate(90deg);
+            }
+            .touch-cursor-iframe {
+              position: fixed !important;
+              pointer-events: none !important;
+              z-index: 2147483647 !important;
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: rgba(56, 189, 248, 0.35);
+              border: 2px solid rgba(56, 189, 248, 0.85);
+              box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+              transform: translate(-50%, -50%) !important;
+              display: none;
+              will-change: transform, left, top;
+            }
+          `;
+          fDoc.head.appendChild(styleTag);
+        }
+
+        // 2. Inject cursor elements into iframe body
+        let iPencil = fDoc.getElementById('iframe-pencil-stylus');
+        if (!iPencil) {
+          iPencil = fDoc.createElement('div');
+          iPencil.id = 'iframe-pencil-stylus';
+          iPencil.className = 'apple-pencil-stylus-iframe';
+          iPencil.innerHTML = `
+            <div class="pencil-body">
+              <div class="pencil-badge-logo"> Pencil</div>
+              <div class="pencil-tip-cone"></div>
+              <div class="pencil-nib"></div>
+            </div>
+          `;
+          fDoc.body.appendChild(iPencil);
+        }
+
+        let iTouch = fDoc.getElementById('iframe-touch-cursor');
+        if (!iTouch) {
+          iTouch = fDoc.createElement('div');
+          iTouch.id = 'iframe-touch-cursor';
+          iTouch.className = 'touch-cursor-iframe';
+          fDoc.body.appendChild(iTouch);
+        }
+
+        // 3. Update cursor visibility
+        const updateIframeCursor = () => {
+          if (currentInputMode === 'pencil' || currentInputMode === 'touch') {
+            fDoc.body.style.setProperty('cursor', 'none', 'important');
+            if (fDoc.documentElement) fDoc.documentElement.style.setProperty('cursor', 'none', 'important');
+          } else {
+            fDoc.body.style.cursor = 'default';
+            if (fDoc.documentElement) fDoc.documentElement.style.cursor = 'default';
+            if (iPencil) iPencil.style.display = 'none';
+            if (iTouch) iTouch.style.display = 'none';
+          }
+        };
+        updateIframeCursor();
+
+        // 4. Track mouse movement inside the iframe
+        if (!fDoc._hasSimListeners) {
+          fDoc._hasSimListeners = true;
+
+          const onPointerMoveInFrame = (e) => {
+            // Hide parent stylus when inside the iframe
+            pencil.style.display = 'none';
+            touchCursor.style.display = 'none';
+
+            if (currentInputMode === 'pencil') {
+              iPencil.style.display = 'block';
+              iTouch.style.display = 'none';
+              iPencil.style.left = e.clientX + 'px';
+              iPencil.style.top = e.clientY + 'px';
+            } else if (currentInputMode === 'touch') {
+              iTouch.style.display = 'block';
+              iPencil.style.display = 'none';
+              iTouch.style.left = e.clientX + 'px';
+              iTouch.style.top = e.clientY + 'px';
+            } else {
+              iPencil.style.display = 'none';
+              iTouch.style.display = 'none';
+            }
+          };
+
+          fDoc.addEventListener('pointermove', onPointerMoveInFrame, { passive: true });
+          fDoc.addEventListener('mousemove', onPointerMoveInFrame, { passive: true });
+
+          fDoc.addEventListener('pointerleave', () => {
+            if (iPencil) iPencil.style.display = 'none';
+            if (iTouch) iTouch.style.display = 'none';
+          });
+
+          // 5. Intercept events and convert mouse events to authentic Apple Pencil pointerType === 'pen'
+          const setCustomPointerType = (e, pType) => {
+            try {
+              Object.defineProperty(e, 'pointerType', { value: pType, configurable: true });
+              if (pType === 'pen') {
+                Object.defineProperty(e, 'pressure', { value: 0.8, configurable: true });
+              }
+            } catch (err) {}
+          };
+
+          fDoc.addEventListener('pointerdown', (e) => {
+            if (currentInputMode === 'pencil') {
+              setCustomPointerType(e, 'pen');
+            } else if (currentInputMode === 'touch') {
+              setCustomPointerType(e, 'touch');
+            }
+          }, true);
+
+          fDoc.addEventListener('pointerup', (e) => {
+            if (currentInputMode === 'pencil') {
+              setCustomPointerType(e, 'pen');
+            } else if (currentInputMode === 'touch') {
+              setCustomPointerType(e, 'touch');
+            }
+          }, true);
+        }
+
+      } catch (err) {
+        console.warn('Iframe bridge error:', err);
+      }
+    }
+
+    // Stylus Cursor Tracking on Parent Window (Outside the iPad screen)
+    document.addEventListener('mousemove', (e) => {
+      if (currentInputMode === 'pencil') {
+        pencil.style.display = 'block';
+        touchCursor.style.display = 'none';
+        pencil.style.left = e.clientX + 'px';
+        pencil.style.top = e.clientY + 'px';
+      } else if (currentInputMode === 'touch') {
+        touchCursor.style.display = 'block';
+        pencil.style.display = 'none';
+        touchCursor.style.left = e.clientX + 'px';
+        touchCursor.style.top = e.clientY + 'px';
+      }
+    });
+
+    document.addEventListener('mouseleave', () => {
+      pencil.style.display = 'none';
+      touchCursor.style.display = 'none';
+    });
+
+    // Window Resize Auto-scale
+    window.addEventListener('resize', () => {
+      applyScale();
+    });
+
+    // Initialize Simulator & Hook Iframe
+    window.addEventListener('DOMContentLoaded', () => {
+      updateSimulatorLayout();
+      setTimeout(applyScale, 100);
+
+      const appFrame = document.getElementById('app-frame');
+      if (appFrame) {
+        appFrame.addEventListener('load', () => {
+          injectSimulatorBridgeIntoIframe(appFrame);
+        });
+        // Check periodically until loaded
+        let checkInterval = setInterval(() => {
+          try {
+            if (appFrame.contentDocument && appFrame.contentDocument.body) {
+              injectSimulatorBridgeIntoIframe(appFrame);
+              clearInterval(checkInterval);
+            }
+          } catch(e) {}
+        }, 300);
+      }
+    });
+  </script>
+</body>
+</html>

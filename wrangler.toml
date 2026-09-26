@@ -1,0 +1,8 @@
+name = "wortschatz-german-reader"
+compatibility_date = "2024-09-01"
+
+[site]
+bucket = "."
+
+# Or for Cloudflare Pages:
+# Run: npx wrangler pages deploy . --project-name=wortschatz

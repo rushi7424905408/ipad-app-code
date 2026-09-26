@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPad UI/UX Lösungsvergleich: Vokabel-Drawer</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    :root {
+      --ipad-bg: #090a0f;
+      --card-bg: rgba(26, 27, 36, 0.85);
+      --border-color: rgba(255, 255, 255, 0.12);
+    }
+    .glass {
+      background: rgba(18, 20, 29, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .ipad-screen {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 p-4 md:p-6 font-sans min-h-screen">
+
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-500/20 text-cyan-400 border border-blue-500/30">iPad UI/UX Architecture</span>
+          <span class="text-xs text-slate-400 font-mono">Screen: iPad Pro (834x1194px)</span>
+        </div>
+        <h1 class="text-2xl font-extrabold text-white tracking-tight">Vokabel-Drawer: Problem & 3 Lösungskonzepte</h1>
+        <p class="text-sm text-slate-400">Vergleichen Sie die bestehende Situation mit drei modernen iPadOS-optimierten Alternativen.</p>
+      </div>
+
+      <!-- Solution Selector Tabs -->
+      <div class="flex p-1 bg-slate-900 border border-slate-700/60 rounded-xl gap-1 overflow-x-auto">
+        <button onclick="switchView('current')" id="btn-current" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-rose-500/20 text-rose-300 border border-rose-500/30">
+          ⚠️ Aktuelles Problem
+        </button>
+        <button onclick="switchView('sheet')" id="btn-sheet" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white">
+          ⭐ 1. Floating Bottom Sheet
+        </button>
+        <button onclick="switchView('capsule')" id="btn-capsule" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white">
+          📱 2. Floating PiP-Kapsel
+        </button>
+        <button onclick="switchView('slideover')" id="btn-slideover" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white">
+          🗂️ 3. Translucent Slide-Over
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Comparison Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- Left Column: Simulated iPad Device Viewport -->
+      <div class="lg:col-span-7 flex flex-col items-center">
+        <!-- iPad Bezel -->
+        <div class="w-full max-w-[540px] bg-slate-950 p-4 rounded-[38px] border-4 border-slate-700/80 shadow-2xl relative">
+          <!-- Camera notch / dot -->
+          <div class="w-3 h-3 bg-slate-800 rounded-full mx-auto mb-3 border border-slate-700"></div>
+
+          <!-- iPad Screen Area (Simulated 4:3 / iPad aspect) -->
+          <div class="ipad-screen w-full h-[460px] bg-slate-900 rounded-[22px] overflow-hidden relative flex flex-col border border-slate-800 text-xs">
+            
+            <!-- iPad Top Bar -->
+            <div class="h-9 bg-slate-900/90 border-b border-slate-800 px-3 flex items-center justify-between text-slate-300 flex-shrink-0">
+              <div class="flex items-center gap-1.5 font-bold text-xs text-white">
+                <span class="w-4 h-4 rounded bg-blue-600 flex items-center justify-center text-[10px]">DE</span>
+                <span>WortSchatz</span>
+              </div>
+              <div class="flex items-center gap-2 text-[10px] text-slate-400">
+                <span class="bg-slate-800 px-2 py-0.5 rounded border border-slate-700">Seite 1 / 4</span>
+                <span class="bg-slate-800 px-2 py-0.5 rounded border border-slate-700">100%</span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-slate-300 text-[11px]">🔖</button>
+                <button class="w-6 h-6 rounded bg-blue-600/30 text-blue-400 flex items-center justify-center text-[11px]">⚙️</button>
+              </div>
+            </div>
+
+            <!-- Workspace Body -->
+            <div class="flex-1 flex relative overflow-hidden bg-[#0d1117]">
+              
+              <!-- PDF Document View -->
+              <div id="sim-pdf" class="flex-1 p-4 overflow-y-auto transition-all duration-300 flex justify-center">
+                <!-- Simulated PDF Page -->
+                <div id="sim-page" class="w-full max-w-[340px] bg-white text-slate-900 p-4 rounded shadow-sm text-[10px] leading-relaxed select-none transition-all duration-300">
+                  <div class="border-b border-slate-200 pb-2 mb-2 font-bold text-xs text-slate-800 flex justify-between">
+                    <span>Recht &amp; Gesellschaft</span>
+                    <span class="text-[9px] text-slate-400">§ 14 Abs. 2</span>
+                  </div>
+                  <h3 class="font-extrabold text-sm mb-1 text-slate-900">Das Prinzip der Rechtssicherheit</h3>
+                  <p class="mb-2 text-slate-700">
+                    Die <span class="bg-yellow-200 text-slate-900 px-1 py-0.5 rounded font-semibold">Rechtsschutzversicherung</span> schützt den Bürger vor unkalkulierbaren Prozesskosten.
+                  </p>
+                  <p class="mb-2 text-slate-600">
+                    Wer einen Schaden erlitten hat, muss die Frage nach Haftung und Verschulden sorgfältig <span class="bg-blue-100 text-blue-900 px-1 py-0.5 rounded font-medium">beantworten</span>.
+                  </p>
+                  <div class="p-2 bg-slate-50 border border-slate-200 rounded text-[9px] text-slate-500 mb-2">
+                    Hinweis: Besondere Beachtung gilt bei mehrteiligen Schiedsverfahren.
+                  </div>
+                  <p class="text-slate-600">
+                    Hierbei treten gesetzliche Vertreter auf und <span class="bg-emerald-100 text-emerald-900 px-1 py-0.5 rounded font-medium">übernehmen</span> die Beweisaufnahme.
+                  </p>
+                </div>
+              </div>
+
+              <!-- VIEW 1: CURRENT STATE (340px Fixed Sidebar Squishing PDF) -->
+              <div id="view-current" class="w-[190px] bg-slate-950 border-l border-slate-800 flex flex-col flex-shrink-0 transition-all">
+                <div class="p-2 border-b border-slate-800 flex justify-between items-center text-[10px] font-bold text-slate-200 bg-slate-900">
+                  <span>Wortschatz (2)</span>
+                  <span class="text-rose-400 text-[9px]">45% Platz</span>
+                </div>
+                <div class="p-2 space-y-2 overflow-y-auto flex-1 text-[9px]">
+                  <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                    <span class="font-bold text-blue-400">Rechtsschutz...</span>
+                    <p class="text-slate-400 text-[8px]">Legal protection insurance</p>
+                  </div>
+                  <div class="p-2 rounded bg-slate-900 border border-slate-800">
+                    <span class="font-bold text-emerald-400">beantworten</span>
+                    <p class="text-slate-400 text-[8px]">to answer, reply to</p>
+                  </div>
+                </div>
+                <div class="p-1.5 bg-rose-950/60 border-t border-rose-900 text-rose-300 text-[8.5px] text-center font-bold">
+                  ❌ PDF stark zusammengedrückt!
+                </div>
+              </div>
+
+              <!-- VIEW 2: SOLUTION 1 - FLOATING BOTTOM SHEET (Apple Maps Style) -->
+              <div id="view-sheet" class="hidden absolute left-0 right-0 bottom-0 z-30 transition-all duration-300 flex flex-col items-center">
+                <!-- Collapsed / Expanded Sheet Container -->
+                <div class="w-full max-w-[460px] glass rounded-t-2xl shadow-2xl border-t border-cyan-500/30 overflow-hidden">
+                  <!-- Swipe Drag Handle -->
+                  <div class="w-full py-1.5 flex justify-center cursor-pointer bg-slate-900/60" onclick="toggleSheetExpand()">
+                    <div class="w-10 h-1 rounded-full bg-slate-500"></div>
+                  </div>
+                  <!-- Sheet Header -->
+                  <div class="px-3 py-1.5 flex items-center justify-between border-b border-slate-800/80">
+                    <div class="flex items-center gap-2">
+                      <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                      <span class="font-bold text-xs text-white">Live Vokabular</span>
+                      <span class="px-1.5 py-0.2 rounded-full text-[9px] bg-cyan-500/20 text-cyan-300">2 Wörter</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                      <button class="px-2 py-0.5 rounded text-[9px] bg-slate-800 text-slate-300 hover:bg-slate-700">Obsidian</button>
+                      <button onclick="toggleSheetExpand()" id="sheet-toggle-btn" class="px-2 py-0.5 rounded text-[9px] bg-cyan-600 text-white font-bold">▲ Ausklappen</button>
+                    </div>
+                  </div>
+                  <!-- Sheet Content (Expandable) -->
+                  <div id="sheet-body" class="p-2 space-y-1.5 max-h-[160px] overflow-y-auto">
+                    <div class="p-2 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center text-[10px]">
+                      <div>
+                        <span class="font-bold text-white text-xs">Rechtsschutzversicherung</span>
+                        <p class="text-slate-400 text-[9px]">die • Nomen • Legal protection insurance</p>
+                      </div>
+                      <span class="px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono text-[9px]">S. 1</span>
+                    </div>
+                    <div class="p-2 rounded-lg bg-slate-900/80 border border-slate-800 flex justify-between items-center text-[10px]">
+                      <div>
+                        <span class="font-bold text-white text-xs">beantworten</span>
+                        <p class="text-slate-400 text-[9px]">Verb (untrennbar) • to answer</p>
+                      </div>
+                      <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[9px]">S. 1</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- VIEW 3: SOLUTION 2 - FLOATING PiP CAPSULE -->
+              <div id="view-capsule" class="hidden absolute right-3 bottom-3 z-30 transition-all duration-300">
+                <div class="w-[210px] glass rounded-xl p-2.5 shadow-2xl border border-purple-500/30">
+                  <div class="flex items-center justify-between mb-2 pb-1 border-b border-slate-800">
+                    <span class="font-bold text-[10px] text-purple-300 flex items-center gap-1">
+                      <span>✨</span> Vokabel-Kapsel
+                    </span>
+                    <button class="w-4 h-4 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-white text-[9px]">✕</button>
+                  </div>
+                  <div class="space-y-1.5 text-[9.5px]">
+                    <div class="p-1.5 rounded bg-slate-900/90 border border-slate-800">
+                      <div class="font-bold text-white">beantworten</div>
+                      <div class="text-slate-400 text-[8.5px]">to answer, reply to</div>
+                    </div>
+                    <div class="p-1.5 rounded bg-slate-900/90 border border-slate-800">
+                      <div class="font-bold text-white">übernehmen</div>
+                      <div class="text-slate-400 text-[8.5px]">to take over / adopt</div>
+                    </div>
+                  </div>
+                  <div class="mt-2 pt-1 border-t border-slate-800/80 flex justify-between text-[8px] text-slate-400">
+                    <span>2 Wörter</span>
+                    <span class="text-purple-400 hover:underline cursor-pointer">Zu Flashcards →</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- VIEW 4: SOLUTION 3 - TRANSLUCENT SLIDE-OVER OVERLAY -->
+              <div id="view-slideover" class="hidden absolute inset-0 z-30 flex justify-end bg-black/35 backdrop-blur-[2px]">
+                <div class="w-[220px] h-full glass border-l border-slate-700/80 p-3 shadow-2xl flex flex-col animate-slide-left">
+                  <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+                    <span class="font-bold text-xs text-white">Vokabelliste</span>
+                    <button onclick="switchView('slideover')" class="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 text-[10px]">✕</button>
+                  </div>
+                  <div class="space-y-2 flex-1 overflow-y-auto text-[9.5px]">
+                    <div class="p-2 rounded bg-slate-900/90 border border-slate-800">
+                      <span class="font-bold text-cyan-400">Rechtsschutz...</span>
+                      <p class="text-slate-400 text-[8.5px]">Legal insurance</p>
+                    </div>
+                    <div class="p-2 rounded bg-slate-900/90 border border-slate-800">
+                      <span class="font-bold text-emerald-400">beantworten</span>
+                      <p class="text-slate-400 text-[8.5px]">to answer</p>
+                    </div>
+                  </div>
+                  <p class="text-[8px] text-slate-400 text-center pt-2 border-t border-slate-800">
+                    PDF bleibt bei 100% Breite im Hintergrund
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- iPad Home Bar -->
+          <div class="w-24 h-1 bg-slate-700 rounded-full mx-auto mt-2.5"></div>
+        </div>
+      </div>
+
+      <!-- Right Column: Deep-Dive Analysis of the Selected Option -->
+      <div class="lg:col-span-5 space-y-4">
+        <div id="info-card" class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center gap-2 mb-2">
+            <span id="info-badge" class="px-2 py-0.5 rounded text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">Problem-Analyse</span>
+            <span id="info-rating" class="text-xs text-slate-400 font-mono">Status: Kritisch auf iPad</span>
+          </div>
+          <h2 id="info-title" class="text-lg font-bold text-white mb-2">Aktuelle Situation: Fixed 340px Sidebar</h2>
+          <p id="info-desc" class="text-xs text-slate-300 leading-relaxed mb-4">
+            Auf dem Desktop (1920px) ist die rechte Sidebar ideal. Auf einem iPad (768px bis 834px Breite) beansprucht die feste Leiste jedoch über 40% des horizontalen Platzes. Das zwingt die PDF.js-Engine dazu, die DIN-A4-Seite winzig zu skalieren. Die Schrift wird kaum lesbar, und der Nutzer muss permanent horizontal scrollen.
+          </p>
+
+          <div class="border-t border-slate-800 pt-3">
+            <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2">Technische Merkmale:</h4>
+            <ul id="info-list" class="space-y-1.5 text-xs text-slate-300">
+              <li class="flex items-start gap-2">
+                <span class="text-rose-400 font-bold">•</span>
+                <span>PDF-Breite auf iPad: nur noch ca. 440px verfügbar</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-rose-400 font-bold">•</span>
+                <span>Zoomstufe muss unter 75% reduziert werden</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-rose-400 font-bold">•</span>
+                <span>Kognitive Reibung durch ständige Platznot</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Quick Implementation Matrix -->
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4">
+          <h4 class="text-xs font-bold text-slate-300 mb-3 flex items-center justify-between">
+            <span>Vergleichs-Matrix der Optionen</span>
+            <span class="text-[10px] text-cyan-400">Empfehlung: Lösung 1</span>
+          </h4>
+          <div class="grid grid-cols-4 gap-2 text-center text-[10px]">
+            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
+              <div class="text-slate-400 mb-1">Option</div>
+              <div class="font-bold text-white">PDF-Platz</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
+              <div class="text-slate-400 mb-1">Sheet</div>
+              <div class="font-bold text-emerald-400">100% Breite</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
+              <div class="text-slate-400 mb-1">Kapsel</div>
+              <div class="font-bold text-cyan-400">100% Breite</div>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-950 border border-slate-800">
+              <div class="text-slate-400 mb-1">Overlay</div>
+              <div class="font-bold text-purple-400">100% Breite</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    let isSheetExpanded = true;
+
+    function switchView(viewName) {
+      // Reset views
+      document.getElementById('view-current').classList.add('hidden');
+      document.getElementById('view-sheet').classList.add('hidden');
+      document.getElementById('view-capsule').classList.add('hidden');
+      document.getElementById('view-slideover').classList.add('hidden');
+
+      // Reset buttons
+      ['current', 'sheet', 'capsule', 'slideover'].forEach(id => {
+        const btn = document.getElementById('btn-' + id);
+        btn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:text-white';
+      });
+
+      const simPage = document.getElementById('sim-page');
+      const badge = document.getElementById('info-badge');
+      const rating = document.getElementById('info-rating');
+      const title = document.getElementById('info-title');
+      const desc = document.getElementById('info-desc');
+      const list = document.getElementById('info-list');
+
+      if (viewName === 'current') {
+        document.getElementById('view-current').classList.remove('hidden');
+        document.getElementById('btn-current').className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-rose-500/20 text-rose-300 border border-rose-500/30';
+        simPage.style.maxWidth = '250px';
+
+        badge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30';
+        badge.textContent = 'Problem-Analyse';
+        rating.textContent = 'Status: Stark einschränkend auf iPad';
+        title.textContent = 'Aktueller Status: Feste 340px Sidebar';
+        desc.textContent = 'Auf dem Desktop (1920px) ist die rechte Sidebar ideal. Auf einem iPad (768px bis 834px Breite) beansprucht die feste Leiste jedoch über 40% des horizontalen Platzes. Das zwingt die PDF-Engine dazu, die DIN-A4-Seite winzig zu skalieren. Die Schrift wird kaum lesbar, und der Nutzer muss permanent horizontal scrollen.';
+        list.innerHTML = `
+          <li class="flex items-start gap-2"><span class="text-rose-400 font-bold">•</span><span>PDF-Breite auf iPad: nur noch ca. 440px verfügbar</span></li>
+          <li class="flex items-start gap-2"><span class="text-rose-400 font-bold">•</span><span>PDF muss auf unter 75% Zoom verkleinert werden</span></li>
+          <li class="flex items-start gap-2"><span class="text-rose-400 font-bold">•</span><span>Pencil-Annotationen werden ungenau durch winzige Skalierung</span></li>
+        `;
+      } else if (viewName === 'sheet') {
+        document.getElementById('view-sheet').classList.remove('hidden');
+        document.getElementById('btn-sheet').className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-cyan-500/20 text-cyan-300 border border-cyan-500/30';
+        simPage.style.maxWidth = '340px';
+
+        badge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+        badge.textContent = '⭐ Höchste Empfehlung';
+        rating.textContent = 'Native Apple iOS Ergonomie';
+        title.textContent = 'Lösung 1: Native Floating Bottom Sheet (Apple Maps Stil)';
+        desc.textContent = 'Die Vokabel-Leiste wandert vom Bildschirmrand nach unten als natives iOS Bottom Sheet. Im eingeklappten Zustand zeigt sie als dezenter Dock-Balken (50px hoch) die Anzahl der Wörter und den letzten Begriff. Zieht der Nutzer mit dem Finger oder Pencil nach oben, klappt das Sheet flüssig als Halb- oder Vollbild-Overlay auf.';
+        list.innerHTML = `
+          <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">•</span><span><strong>100% horizontale PDF-Breite</strong> bleibt vollständig erhalten.</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">•</span><span>Natürliche iOS-Gesten: Wischgeste nach oben/unten zum Ein-/Ausklappen.</span></li>
+          <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">•</span><span>Auf PC bleibt automatisch die klassische Sidebar aktiv (@media query).</span></li>
+        `;
+      } else if (viewName === 'capsule') {
+        document.getElementById('view-capsule').classList.remove('hidden');
+        document.getElementById('btn-capsule').className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-purple-500/20 text-purple-300 border border-purple-500/30';
+        simPage.style.maxWidth = '340px';
+
+        badge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30';
+        badge.textContent = 'Option 2: Multitasking-Stil';
+        rating.textContent = 'Maximale Flexibilität';
+        title.textContent = 'Lösung 2: Floating Picture-in-Picture Kapsel';
+        desc.textContent = 'Inspiriert von Bild-in-Bild Fenstern auf iPadOS: Die Vokabelkarte schwebt als 210px breite, transparente Glassmorphism-Kapsel in einer frei wählbaren Bildschirmecke. Durch die Halbtransparenz bleibt das darunterliegende PDF sichtbar. Bei Bedarf kann sie mit einem Klick zu einem winzigen Icon minimiert werden.';
+        list.innerHTML = `
+          <li class="flex items-start gap-2"><span class="text-purple-400 font-bold">•</span><span>PDF-Dokument bleibt zu 100% zentriert und voll lesbar.</span></li>
+          <li class="flex items-start gap-2"><span class="text-purple-400 font-bold">•</span><span>Kann mit dem Pencil in jede beliebige Bildschirmecke geschoben werden.</span></li>
+          <li class="flex items-start gap-2"><span class="text-purple-400 font-bold">•</span><span>1-Klick Minimierung auf einen 36px Floating Action Button.</span></li>
+        `;
+      } else if (viewName === 'slideover') {
+        document.getElementById('view-slideover').classList.remove('hidden');
+        document.getElementById('btn-slideover').className = 'px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-blue-500/20 text-blue-300 border border-blue-500/30';
+        simPage.style.maxWidth = '340px';
+
+        badge.className = 'px-2 py-0.5 rounded text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30';
+        badge.textContent = 'Option 3: Minimal-Invasiv';
+        rating.textContent = 'Schnellste Implementierung';
+        title.textContent = 'Lösung 3: Slide-Over Overlay mit Tap-Outside Dismiss';
+        desc.textContent = 'Auf dem iPad verschwindet die Sidebar standardmäßig vollständig (100% PDF-Fokus). Wenn der Nutzer auf das Vokabel-Icon in der Topbar tippt, gleitet die Leiste von rechts als transparentes Overlay über das PDF (ohne das PDF neu zu rendern oder zusammenzustauchen). Ein Fingertipp außerhalb schließt sie sofort wieder.';
+        list.innerHTML = `
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><span>Kein Neu-Rendern des PDFs nötig (Zero-Layout-Shift).</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><span>Tippen auf das PDF schließt die Liste automatisch.</span></li>
+          <li class="flex items-start gap-2"><span class="text-blue-400 font-bold">•</span><span>Ideal für Nutzer, die das Vokabular nur punktuell kontrollieren wollen.</span></li>
+        `;
+      }
+    }
+
+    function toggleSheetExpand() {
+      const body = document.getElementById('sheet-body');
+      const btn = document.getElementById('sheet-toggle-btn');
+      isSheetExpanded = !isSheetExpanded;
+      if (isSheetExpanded) {
+        body.style.display = 'block';
+        btn.textContent = '▼ Einklappen';
+      } else {
+        body.style.display = 'none';
+        btn.textContent = '▲ Ausklappen';
+      }
+    }
+  </script>
+</body>
+</html>
